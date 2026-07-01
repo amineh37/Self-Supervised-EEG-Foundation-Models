@@ -1,0 +1,32 @@
+# Option B (#2 only): asymmetric augmented views, random mask. Defensible paper.
+# Run from pretrain/:
+#   python run_pretrain_improved.py --config ../configs/pretrain/v2_aug.yaml
+
+seed: 7
+
+model:
+  preset: v2_aug
+  tag: tiny
+  transformer: crisscross
+  mask_ratio: 0.5
+
+data:
+  input_mode: pretoken
+  data_backend: lmdb
+  train_lmdb: ${DATA}/STELAR/data/pretrain/train_90pct
+  valid_lmdb: ${DATA}/STELAR/data/pretrain/val_10pct
+  montage: "19"
+  batch_size: 64
+  num_workers: 8
+
+trainer:
+  max_epochs: 30
+  pretrain_max_lr: 1.0e-4
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both
+  wandb: false
+  wandb_project: stelar
+  wandb_tags: pretrain,v2_aug,optionB

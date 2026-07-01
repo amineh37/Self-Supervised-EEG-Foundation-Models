@@ -1,0 +1,35 @@
+# Faithful PDF baseline (== run_pretrain.py). 30 epochs on the 500h TUEG LMDB.
+# Run from pretrain/:
+#   python run_pretrain_improved.py --config ../configs/pretrain/v0_baseline.yaml
+# Any field below can be overridden on the CLI (CLI > YAML > defaults).
+# Section names are cosmetic; leaf keys map to run_pretrain CLI flags.
+
+seed: 7
+
+model:
+  preset: v0_baseline
+  tag: tiny
+  transformer: crisscross
+  mask_ratio: 0.5
+
+data:
+  input_mode: pretoken
+  data_backend: lmdb
+  # Point these at the LMDBs built by preprocessing/pretrain/.
+  train_lmdb: ${DATA}/STELAR/data/pretrain/train_90pct
+  valid_lmdb: ${DATA}/STELAR/data/pretrain/val_10pct
+  montage: "19"
+  batch_size: 64
+  num_workers: 8
+
+trainer:
+  max_epochs: 30
+  pretrain_max_lr: 1.0e-4
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both          # both (TB+CSV) | tensorboard | csv | wandb
+  wandb: false          # set true (or pass --wandb) to also log to W&B
+  wandb_project: stelar
+  wandb_tags: pretrain,v0_baseline

@@ -1,0 +1,38 @@
+# CPU smoke test: no GPU, no real data. Reads `.pt` pretoken tensors of shape
+# [C=19, N=30, D=200] (CND) from train_root. Finishes in seconds.
+#
+# The canonical "does it run?" check is the test-suite (`pytest`), which builds
+# its own synthetic data. To drive THIS config manually, first generate data:
+#   python -c "import torch,pathlib; d=pathlib.Path('_smoke_data'); d.mkdir(exist_ok=True); [torch.save(torch.randn(19,30,200)*20, d/f'{i:03d}.pt') for i in range(16)]"
+# then run from pretrain/:
+#   python run_pretrain_improved.py --config ../configs/pretrain/local_smoke.yaml
+
+seed: 7
+
+model:
+  preset: v0_baseline
+  tag: tiny
+  transformer: crisscross
+  mask_ratio: 0.5
+
+data:
+  input_mode: pretoken
+  data_backend: files
+  train_root: ./_smoke_data
+  exts: pt
+  val_fraction: 0.2
+  montage: "19"
+  batch_size: 8
+  num_workers: 0
+
+trainer:
+  max_epochs: 1
+  pretrain_max_lr: 1.0e-4
+  devices: ""              # empty -> CPU
+  limit_train_batches: 3
+  limit_val_batches: 2
+
+logging:
+  log_root: ./logs/local_smoke
+  logger: csv             # keep it light for a smoke run
+  wandb: false

@@ -1,0 +1,30 @@
+# TUAB fine-tuning of STELAR (normal vs abnormal, subject-wise CV). Reproduces Table 7 (TUAB).
+# Run from the project root (architecture/):
+#   python src/downstream/run_tuab.py --config configs/downstream/tuab.yaml
+
+seed: 42
+
+task:
+  scheme: stelar_patch_adapt
+  head_type: eegpt_probe
+
+data:
+  tuab_path: ${DATA}/TUAB_stelar       # edit
+  seq_len: 2000
+  patch: 100
+  scale_div: 100.0
+  num_workers: 4
+
+model:
+  pretrain_ckpt: ${CKPT}/stelar_base.ckpt   # edit (TUAB excluded from pre-training)
+
+trainer:
+  epochs: 50
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both
+  wandb: false
+  wandb_project: stelar
+  wandb_tags: downstream,tuab

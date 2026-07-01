@@ -1,0 +1,54 @@
+# Domain-Adversarial (DANN) fine-tuning of STELAR on BCIC-2A, leave-one-subject-out.
+# Run from the project root (architecture/):
+#   python src/downstream/run_bcic2a.py --config configs/downstream/dann_bcic2a_loso.yaml
+# CLI flags override any value here. Section names are cosmetic (leaf keys map to
+# run_bcic2a.py CLI args).
+
+seed: 42
+
+task:
+  scheme: stelar_dann        # <-- selects LitSTELARDANN (GRL + subject discriminator)
+  split: loso
+  tag: base
+  variant: D
+  preprocess: rep
+  encoder: full_token
+  transformer: crisscross
+
+data:
+  bcic2a_path: ${DATA}/BCIC2a_stelar   # edit: LMDB built by preprocessing/downstream
+  scale_div: 100.0
+  val_ratio: 0.1
+  seq_len: 800
+  patch: 50
+  num_workers: 4
+
+model:
+  pretrain_ckpt: ${CKPT}/stelar_base.ckpt   # edit: STELAR base checkpoint
+  head_type: eegpt_probe
+  dropout: 0.5
+  use_chan_conv: true
+  chan_max_norm: 1.0
+  rope_time: true
+  rope_chan: false
+  freeze_encoder: true
+
+dann:
+  lambda_adv: 1.0
+  schedule_alpha: true
+  grl_gamma: 10.0
+  subj_disc_hidden: 64
+  subj_disc_dropout: 0.3
+
+trainer:
+  epochs: 100
+  batch_size: 64
+  devices: "0"
+  grad_clip: 1.0
+
+logging:
+  log_root: ./logs
+  logger: both          # both (TB+CSV) | tensorboard | csv | wandb
+  wandb: false          # set true (or pass --wandb) to also log to W&B (grl_alpha, adv_loss, ...)
+  wandb_project: stelar
+  wandb_tags: downstream,bcic2a,dann

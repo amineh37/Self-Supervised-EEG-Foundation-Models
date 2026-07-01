@@ -1,0 +1,33 @@
+# TUEV fine-tuning of STELAR (event classification, 4-fold). Reproduces Table 5 (bottom).
+# Run from the project root (architecture/):
+#   python src/downstream/run_tuev.py --config configs/downstream/tuev.yaml
+# Variants = override a flag, e.g.  --max_lr_enc 1e-4 (stronger) / --freeze_encoder / --ft_top_k 2
+
+seed: 42
+
+task:
+  scheme: stelar_patch_adapt_tuev
+  head_type: eegpt_probe
+  kfold: 4
+
+data:
+  tuev_path: ${DATA}/TUEV_stelar       # edit
+  seq_len: 1000
+  patch: 200
+  scale_div: 100.0
+  num_workers: 4
+
+model:
+  pretrain_ckpt: ${CKPT}/stelar_base.ckpt   # edit
+  max_lr_enc: 1.0e-6
+
+trainer:
+  epochs: 50
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both
+  wandb: false
+  wandb_project: stelar
+  wandb_tags: downstream,tuev

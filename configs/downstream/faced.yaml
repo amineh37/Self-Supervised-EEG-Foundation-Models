@@ -1,0 +1,32 @@
+# FACED fine-tuning of STELAR (emotion classification). Reproduces Table 5 (top).
+# Run from the project root (architecture/):
+#   python src/downstream/run_faced.py --config configs/downstream/faced.yaml
+# Table-5 variants = override one flag, e.g.  --freeze_encoder  /  --ft_top_k 2  /  --head_type avg
+
+seed: 42
+
+task:
+  scheme: stelar_patch_adapt
+  head_type: eegpt_probe
+
+data:
+  faced_path: ${DATA}/FACED_stelar     # edit
+  seq_len: 2000
+  patch: 100
+  scale_div: 100.0
+  num_workers: 4
+
+model:
+  pretrain_ckpt: ${CKPT}/stelar_base.ckpt   # edit: backbone checkpoint
+  max_lr_enc: 1.0e-4
+
+trainer:
+  epochs: 100
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both          # both (TB+CSV) | tensorboard | csv | wandb
+  wandb: false
+  wandb_project: stelar
+  wandb_tags: downstream,faced

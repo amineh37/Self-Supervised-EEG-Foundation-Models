@@ -1,0 +1,31 @@
+# PhysioMI fine-tuning of STELAR (motor imagery, 5-fold subject-wise). Reproduces Table 7 (PhysioMI).
+# Run from the project root (architecture/):
+#   python src/downstream/run_physiomi.py --config configs/downstream/physiomi.yaml
+
+seed: 42
+
+task:
+  scheme: stelar_patch_adapt
+  head_type: eegpt_probe
+
+data:
+  physiomi_path: ${DATA}/PhysioMI_stelar    # edit
+  seq_len: 800
+  patch: 50
+  scale_div: 100.0
+  num_workers: 4
+
+model:
+  pretrain_ckpt: ${CKPT}/stelar_base.ckpt   # edit
+  max_lr_enc: 5.0e-5
+
+trainer:
+  epochs: 50
+  devices: "0"
+
+logging:
+  log_root: ./logs
+  logger: both
+  wandb: false
+  wandb_project: stelar
+  wandb_tags: downstream,physiomi
